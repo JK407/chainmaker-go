@@ -161,7 +161,7 @@ docker-qta3:
 	echo "clear environment"
 	cd test/chain3 && ./stop.sh
 	cd test/chain3 && ./clean.sh
-	echo "start new docker-qta test"
+	echo "start new docker-qta3 test"
 	cd scripts/docker && ./build-dockergo.sh
 	cd test/chain3 && ./build.sh
 	cd test/chain3 && ./docker-start.sh
