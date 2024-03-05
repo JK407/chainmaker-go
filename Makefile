@@ -157,6 +157,20 @@ docker-qta:
 	cd test/chain1 && ./clean.sh
 	docker rm -f  `docker ps -aq -f name=ci-chain1`
 
+docker-qta3:
+	echo "clear environment"
+	cd test/chain3 && ./stop.sh
+	cd test/chain3 && ./clean.sh
+	echo "start new docker-qta test"
+	cd scripts/docker && ./build-dockergo.sh
+	cd test/chain3 && ./build.sh
+	cd test/chain3 && ./docker-start.sh
+	cd test/chain3 && ./start.sh
+	cd test/scenario3_dockergo && python3 chain3.py
+#	cd test/chain3 && ./stop.sh
+#	cd test/chain3 && ./clean.sh
+#	docker rm -f  `docker ps -aq -f name=ci-chain3`
+
 generate-commit-id:
 	echo `git log -1 | awk 'NR==1'` > commit_id
 

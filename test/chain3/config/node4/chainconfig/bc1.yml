@@ -12,7 +12,7 @@
 chain_id: chain3
 
 # chain maker version
-version: "2030100"
+version: "2030300"
 
 # chain config sequence
 sequence: 0
@@ -27,14 +27,17 @@ auth_type: "public"
 
 # Crypto settings
 crypto:
-  # Hash algorithm, can be SHA256, SHA3_256 and SM3
-  hash: SHA3_256
+  # Hash algorithm, can be SHA256, SM3 and SM3
+  hash: SM3
 
 # User contract related settings
 contract:
   # If the sql support contract is enabled or not.
   # If it is true, storage.statedb_config.provider in chainmaker.yml should be sql.
   enable_sql_support: false
+
+  # If it is true, Only creators are allowed to upgrade contract.
+  only_creator_can_upgrade: false
 
 # Virtual machine related settings
 vm:
@@ -45,7 +48,11 @@ vm:
     - "wasmer"
     - "gasm"
     - "evm"
+    - "dockergo"
     - "wxvm"
+  native:
+      multisign:
+        enable_manual_run: true
 
 # Block proposing related settings
 block:
@@ -63,8 +70,17 @@ block:
   # Max block size, in MB
   block_size: 10
 
-  # The interval of block proposing attempts, in millisecond
+  # The interval of block proposing attempts, in millisecond.
+  # should be within the range of [10,10000]
   block_interval: 10
+
+  # To enable this attribute, ensure that the clock of the node is consistent
+  # Verify the block timestamp or not
+  block_timestamp_verify: false
+
+  # block timeout, in second.
+  # if abs(now - block_timestamp) > block_timeout, the block is invalid.
+  block_timeout: 30
 
 # Core settings
 core:
@@ -95,65 +111,36 @@ core:
 
 # gas account config
 account_config:
-  enable_gas: true
-  gas_admin_address: "ab108fc6c3850e01cee01e419d07f097186c3982"
-  gas_count: 1000000000
+  # the flag to control if subtracting gas from transaction's origin account when sending tx.
+  enable_gas: false
+  # Deprecated，the default gas count set for admin account.
+  gas_count: 0
+  # the minimum gas count to be subtracted from transaction's origin account for invoking tx.
   default_gas: 100
+  # the gas price per byte for invoking tx, accurate to 6 digits after the decimal point.
+  default_gas_price: 0.1
+  # the minimum gas count to be subtracted from transaction's origin account for installing|upgrading tx.
+  install_base_gas: 10000
+  # the gas price per byte for installing tx, accurate to 6 digits after the decimal point.
+  install_gas_price: 0.001
 
 # Consensus settings
 consensus:
   # Consensus type: 1-TBFT,5-DPOS
-  type: 5
+  type: 1
 
-  # DPOS config start
-  dpos_config: # DPoS
-    # ERC20 contract config
-    - key: erc20.total
-      value: "10000000"
-    - key: erc20.owner
-      value: "EVHDmhMBjMfwL6ZLXWw7gVpf2aHzJYZTFx7VfjsE1XrF"
-    - key: erc20.decimals
-      value: "18"
-    - key: erc20.account:DPOS_STAKE
-      value: "10000000"
-    # Stake contract config
-    - key: stake.minSelfDelegation
-      value: "2500000"
-    - key: stake.epochValidatorNum
-      value: "4"
-    - key: stake.epochBlockNum
-      value: "10"
-    - key: stake.completionUnbondingEpochNum
-      value: "1"
-    - key: stake.candidate:EVHDmhMBjMfwL6ZLXWw7gVpf2aHzJYZTFx7VfjsE1XrF
-      value: "2500000"
-    - key: stake.candidate:8pkw9n2Ady3RzwWdYnS1SRhUm9v19DLwT4mXcijKakAn
-      value: "2500000"
-    - key: stake.candidate:6wyJmqQxAUWea8jmoDEbRCxmkCs4k6GXryXSccQe4kKU
-      value: "2500000"
-    - key: stake.candidate:9ytXaPzFAJc34rwxrUipUqZ88xaA9TgNRxJvGVcovVW5
-      value: "2500000"
-#    - key: stake.candidate:{org5_peeraddr}
-#      value: "2500000"
-#    - key: stake.candidate:{org6_peeraddr}
-#      value: "2500000"
-#    - key: stake.candidate:{org7_peeraddr}
-#      value: "2500000"
-    - key: stake.nodeID:EVHDmhMBjMfwL6ZLXWw7gVpf2aHzJYZTFx7VfjsE1XrF
-      value: "QmV4qqdjqf43ZWN9obqkVXZ1yLcojNK8qFEZbCUrjFztSW"
-    - key: stake.nodeID:8pkw9n2Ady3RzwWdYnS1SRhUm9v19DLwT4mXcijKakAn
-      value: "Qmd8F9493jvRwMRfKCkjbAGuWnGEPNWG5fMcyav5rP2eu2"
-    - key: stake.nodeID:6wyJmqQxAUWea8jmoDEbRCxmkCs4k6GXryXSccQe4kKU
-      value: "QmTqj47NaAq9u3QT8JBpMVaui3csgMomBw6aePh6ufa2cU"
-    - key: stake.nodeID:9ytXaPzFAJc34rwxrUipUqZ88xaA9TgNRxJvGVcovVW5
-      value: "QmQQ6ASwvNjHuARJX828GfMDptU127fpoPGxNeYTcdHijP"
-#    - key: stake.nodeID:{org5_peeraddr}
-#      value: "{org5_peerid}"
-#    - key: stake.nodeID:{org6_peeraddr}
-#      value: "{org6_peerid}"
-#    - key: stake.nodeID:{org7_peeraddr}
-#      value: "{org7_peerid}"
-  # DPOS config end
+  # Consensus node list start
+  nodes:
+    - org_id: "public"
+      node_id:
+        - "QmTwo4nDGD36rqMCu7cAeqimMc2wThB5aN1DiPa8sY9NNX"
+        - "QmcVJA1upD3Tv7KMGTrk7KUrQC1oyyeVJNpTS2qsrAAX61"
+        - "QmNVTF1mqzsj2eNAoJnPYGX6LjJvg8aduXY9MU2AJ6rmhJ"
+        - "QmWBUsogz6bVnGUNjMKYFPJf4c51bjJSZYgqdrBXns5F42"
+#        - "{org5_peerid}"
+#        - "{org6_peerid}"
+#        - "{org7_peerid}"
+  # Consensus node list end
 
   # We can specify other consensus config here in key-value format.
   ext_config:

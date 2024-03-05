@@ -7,7 +7,7 @@ chain_client:
 
   # 签名使用的哈希算法，和节点保持一直
   crypto:
-    hash: SHA3_256
+    hash: SM3
   auth_type: public
   # 默认支持TimestampKey，如果开启enableNormalKey则使用NormalKey
   enable_normal_key: false
