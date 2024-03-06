@@ -31,7 +31,7 @@ func exportPublickeyCMD() *cobra.Command {
 		Long: strings.TrimSpace(
 			`Export the public key of the specified private key.
 Example:
-$ cmc key export_pub -p ./ -n ca.pem -key ca.key
+$ cmc key export_pub -p ./ -n ca.pem -k ca.key
 `,
 		),
 		RunE: func(_ *cobra.Command, _ []string) error {
